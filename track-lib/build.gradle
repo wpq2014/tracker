@@ -1,0 +1,72 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion rootProject.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+
+    // 打包aar时剔除某些文件
+    sourceSets {
+        main {
+//            java.excludes = ['**/TrackGenerator.java', '**/util/**']
+            java {
+                if (Boolean.parseBoolean(gradle.ext.release)) {
+                    exclude '**/TrackGenerator.java'
+                    exclude '**/IOUtil.java'
+                    exclude '**/TrackBean.java'
+                    exclude '**/StringUtil.java'
+                    exclude '**/ExcelReader.java'
+                    exclude '**/Main.java'
+                }
+            }
+        }
+    }
+
+    // 打包aar时剔除assets下的json文件，https://blog.csdn.net/xy_kok/article/details/87187982
+    libraryVariants.all { variant ->
+        variant.mergeAssetsProvider.get().doLast {
+            println("try to delete 'assets/**.json from variant")
+            delete(fileTree(dir: variant.mergeAssetsProvider.get().outputDir, includes: ['**.json']))
+        }
+    }
+
+}
+
+dependencies {
+//    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    // https://blog.csdn.net/jhope/article/details/80841682
+    compileOnly(name: 'rt', ext: 'jar')
+//    compileOnly files('/Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents/Home/jre/lib/rt.jar')
+    compileOnly rootProject.javapoet
+    implementation rootProject.sensorsAnalytics
+    compileOnly rootProject.fastjson
+}
