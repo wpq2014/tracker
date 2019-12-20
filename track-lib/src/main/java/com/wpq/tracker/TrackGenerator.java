@@ -36,6 +36,10 @@ public class TrackGenerator {
     private TrackGenerator() {
     }
 
+    public static void main(String[] args) throws IOException {
+        run();
+    }
+
     public static void run() throws IOException {
         new TrackGenerator().start();
     }

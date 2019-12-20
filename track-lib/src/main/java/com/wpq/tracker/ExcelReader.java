@@ -27,6 +27,9 @@ public class ExcelReader {
 
     private void start() throws IOException {
         JSONObject jsonOld = JSON.parseObject(IOUtil.readFile(oldFilePath));
+        if (jsonOld == null) {
+            jsonOld = new JSONObject();
+        }
         JSONObject jsonNew = JSON.parseObject(IOUtil.readFile(newFilePath));
         if (jsonNew == null || jsonNew.isEmpty()) {
             System.err.println("新数据有误！请检查文件路径或内容");
